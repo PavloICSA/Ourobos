@@ -1,0 +1,28 @@
+#!/bin/bash
+# Start script for quantum entropy service
+
+echo "Starting Quantum Entropy Service..."
+
+# Check if running in Docker
+if [ -f /.dockerenv ]; then
+    echo "Running in Docker container"
+else
+    echo "Running locally"
+    
+    # Check if virtual environment exists
+    if [ ! -d "venv" ]; then
+        echo "Creating virtual environment..."
+        python3 -m venv venv
+    fi
+    
+    # Activate virtual environment
+    source venv/bin/activate
+    
+    # Install dependencies
+    echo "Installing dependencies..."
+    pip install -r requirements.txt
+fi
+
+# Start the Flask app
+echo "Starting Flask server..."
+python app.py

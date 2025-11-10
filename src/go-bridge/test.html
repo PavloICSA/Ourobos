@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Neural Clusters Bridge Test</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #0f0;
+      border-bottom: 2px solid #0f0;
+      padding-bottom: 10px;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #0f0;
+      background: #001100;
+    }
+    button {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #0c0;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    #output {
+      background: #000;
+      border: 1px solid #0f0;
+      padding: 10px;
+      height: 400px;
+      overflow-y: auto;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+    .error {
+      color: #f00;
+    }
+    .success {
+      color: #0f0;
+    }
+    .info {
+      color: #ff0;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 5px;
+      border: 1px solid #0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Go Neural Clusters Bridge Test</h1>
+
+  <div class="section">
+    <h2>Status</h2>
+    <div>
+      <span class="status">Initialized: <span id="status-init">No</span></span>
+      <span class="status">Active Clusters: <span id="status-clusters">0</span></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Controls</h2>
+    <button id="btn-init">Initialize</button>
+    <button id="btn-create" disabled>Create Cluster</button>
+    <button id="btn-update" disabled>Update State</button>
+    <button id="btn-decision" disabled>Get Decision</button>
+    <button id="btn-stop" disabled>Stop Cluster</button>
+    <button id="btn-example" disabled>Run Example</button>
+    <button id="btn-test" disabled>Run Tests</button>
+    <button id="btn-clear">Clear Output</button>
+  </div>
+
+  <div class="section">
+    <h2>Output</h2>
+    <div id="output"></div>
+  </div>
+
+  <script type="module">
+    import { GoNeuralClusters } from './bridge.js';
+    import { runExample } from './example.js';
+    import { runIntegrationTests } from './integration-test.js';
+
+    const output = document.getElementById('output');
+    const statusInit = document.getElementById('status-init');
+    const statusClusters = document.getElementById('status-clusters');
+
+    let clusters = null;
+    let currentClusterId = null;
+
+    // Override console.log to display in output
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    console.log = (...args) => {
+      originalLog(...args);
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      output.innerHTML += `<span class="success">${message}</span>\n`;
+      output.scrollTop = output.scrollHeight;
+    };
+
+    console.error = (...args) => {
+      originalError(...args);
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      output.innerHTML += `<span class="error">${message}</span>\n`;
+      output.scrollTop = output.scrollHeight;
+    };
+
+    console.warn = (...args) => {
+      originalWarn(...args);
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      output.innerHTML += `<span class="info">${message}</span>\n`;
+      output.scrollTop = output.scrollHeight;
+    };
+
+    function updateStatus() {
+      if (clusters) {
+        statusInit.textContent = clusters.isInitialized() ? 'Yes' : 'No';
+        statusClusters.textContent = clusters.getActiveClusterCount();
+      }
+    }
+
+    function enableButtons() {
+      document.getElementById('btn-create').disabled = false;
+      document.getElementById('btn-example').disabled = false;
+      document.getElementById('btn-test').disabled = false;
+    }
+
+    function enableClusterButtons() {
+      document.getElementById('btn-update').disabled = false;
+      document.getElementById('btn-decision').disabled = false;
+      document.getElementById('btn-stop').disabled = false;
+    }
+
+    // Initialize
+    document.getElementById('btn-init').addEventListener('click', async () => {
+      try {
+        console.log('Initializing Go WASM runtime...');
+        clusters = new GoNeuralClusters();
+        await clusters.init();
+        console.log('✓ Initialization complete');
+        updateStatus();
+        enableButtons();
+        document.getElementById('btn-init').disabled = true;
+      } catch (error) {
+        console.error('Initialization failed:', error.message);
+      }
+    });
+
+    // Create cluster
+    document.getElementById('btn-create').addEventListener('click', () => {
+      try {
+        const id = `cluster-${Date.now()}`;
+        currentClusterId = clusters.createCluster(id);
+        console.log(`✓ Created cluster: ${currentClusterId}`);
+        updateStatus();
+        enableClusterButtons();
+      } catch (error) {
+        console.error('Failed to create cluster:', error.message);
+      }
+    });
+
+    // Update state
+    document.getElementById('btn-update').addEventListener('click', () => {
+      try {
+        if (!currentClusterId) {
+          console.error('No cluster selected');
+          return;
+        }
+        const state = {
+          population: Math.random() * 150,
+          energy: Math.random() * 100,
+          mutation_rate: Math.random() * 0.2
+        };
+        clusters.updateClusterState(currentClusterId, state);
+        console.log(`✓ Updated state:`, state);
+        updateStatus();
+      } catch (error) {
+        console.error('Failed to update state:', error.message);
+      }
+    });
+
+    // Get decision
+    document.getElementById('btn-decision').addEventListener('click', async () => {
+      try {
+        if (!currentClusterId) {
+          console.error('No cluster selected');
+          return;
+        }
+        console.log('Waiting for decision...');
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const decision = clusters.getClusterDecision(currentClusterId);
+        if (decision) {
+          console.log('✓ Decision:', {
+            action: decision.action,
+            confidence: decision.confidence.toFixed(2),
+            timestamp: new Date(decision.timestamp * 1000).toISOString()
+          });
+        } else {
+          console.warn('No decision available');
+        }
+      } catch (error) {
+        console.error('Failed to get decision:', error.message);
+      }
+    });
+
+    // Stop cluster
+    document.getElementById('btn-stop').addEventListener('click', () => {
+      try {
+        if (!currentClusterId) {
+          console.error('No cluster selected');
+          return;
+        }
+        clusters.stopCluster(currentClusterId);
+        console.log(`✓ Stopped cluster: ${currentClusterId}`);
+        currentClusterId = null;
+        updateStatus();
+        document.getElementById('btn-update').disabled = true;
+        document.getElementById('btn-decision').disabled = true;
+        document.getElementById('btn-stop').disabled = true;
+      } catch (error) {
+        console.error('Failed to stop cluster:', error.message);
+      }
+    });
+
+    // Run example
+    document.getElementById('btn-example').addEventListener('click', async () => {
+      try {
+        console.log('\n--- Running Example ---\n');
+        await runExample();
+        updateStatus();
+      } catch (error) {
+        console.error('Example failed:', error.message);
+      }
+    });
+
+    // Run tests
+    document.getElementById('btn-test').addEventListener('click', async () => {
+      try {
+        console.log('\n--- Running Integration Tests ---\n');
+        await runIntegrationTests();
+        updateStatus();
+      } catch (error) {
+        console.error('Tests failed:', error.message);
+      }
+    });
+
+    // Clear output
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      output.innerHTML = '';
+    });
+
+    // Initial status
+    updateStatus();
+  </script>
+</body>
+</html>

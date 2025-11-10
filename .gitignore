@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+public/wasm/
+
+# WASM build artifacts
+wasm/rust/target/
+wasm/rust/pkg/
+wasm/fortran/*.o
+wasm/fortran/*.wasm
+wasm/fortran/*.js
+wasm/fortran/*.c
+wasm/go/*.wasm
+wasm/go/wasm_exec.js
+wasm/pascal/*.wasm
+wasm/pascal/*.o
+wasm/pascal/*.ppu
+
+# Smart contract artifacts
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+src/config/contract-address.json
+
+# Python virtual environments
+services/quantum/venv/
+services/quantum/__pycache__/
+services/biosensor/venv/
+services/biosensor/__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Test coverage
+coverage/
+
+# Docker volumes
+.docker/

@@ -1,0 +1,14 @@
+# OuroborOS-Chimera Bio Sensor API Requirements
+# Install with: pip3 install -r requirements.txt
+
+# Web framework
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Adafruit sensor libraries
+adafruit-circuitpython-tsl2561>=1.3.0
+adafruit-circuitpython-dht>=3.7.0
+adafruit-circuitpython-mpu6050>=1.2.0
+
+# Blinka (CircuitPython compatibility layer for Raspberry Pi)
+adafruit-blinka>=8.20.0

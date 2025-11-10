@@ -1,0 +1,5 @@
+qiskit>=0.45.0
+qiskit-ibmq-provider>=0.20.0
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-limiter>=3.5.0

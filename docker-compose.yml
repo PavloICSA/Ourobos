@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Ethereum local blockchain (Hardhat)
+  hardhat:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./contracts:/app
+      - /app/node_modules
+    command: npx hardhat node
+    ports:
+      - "8545:8545"
+    networks:
+      - chimera-network
+
+  # Quantum entropy service
+  quantum:
+    build:
+      context: ./services/quantum
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - QISKIT_API_TOKEN=${QISKIT_API_TOKEN}
+      - FLASK_ENV=development
+    networks:
+      - chimera-network
+    restart: unless-stopped
+
+  # Bio sensor node (optional - runs on Raspberry Pi)
+  # Uncomment if running bio sensor service in Docker instead of on Pi
+  # biosensor:
+  #   build:
+  #     context: ./services/biosensor
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5001:5001"
+  #   environment:
+  #     - BIOSENSOR_API_KEY=${BIOSENSOR_API_KEY}
+  #     - FLASK_ENV=development
+  #   devices:
+  #     - /dev/i2c-1:/dev/i2c-1
+  #   privileged: true
+  #   networks:
+  #     - chimera-network
+  #   restart: unless-stopped
+
+  # Frontend development server
+  frontend:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_BLOCKCHAIN_RPC=http://hardhat:8545
+      - VITE_QUANTUM_API=http://quantum:5000
+      - VITE_BIOSENSOR_API=http://raspberrypi.local:5001
+    depends_on:
+      - hardhat
+      - quantum
+    networks:
+      - chimera-network
+
+networks:
+  chimera-network:
+    driver: bridge

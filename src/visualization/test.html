@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChimeraVisualizer Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+    }
+    
+    h1 {
+      color: #0f0;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    canvas {
+      border: 2px solid #0f0;
+      background: #000;
+    }
+    
+    #controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    button {
+      background: #003300;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background: #005500;
+    }
+    
+    button:active {
+      background: #007700;
+    }
+    
+    #info {
+      background: #001100;
+      border: 1px solid #0f0;
+      padding: 15px;
+      max-width: 1200px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    #info h2 {
+      margin-top: 0;
+      color: #0ff;
+    }
+    
+    #info p {
+      margin: 5px 0;
+      line-height: 1.6;
+    }
+    
+    .status {
+      color: #ff0;
+    }
+    
+    .success {
+      color: #0f0;
+    }
+    
+    .error {
+      color: #f00;
+    }
+  </style>
+</head>
+<body>
+  <h1>OuroborOS-Chimera Visualizer Test</h1>
+  
+  <div id="container">
+    <canvas id="visualization" width="1200" height="800"></canvas>
+    
+    <div id="controls">
+      <button onclick="testBlockchain()">Add Blockchain Gen</button>
+      <button onclick="testQuantum()">Update Quantum</button>
+      <button onclick="testSensors()">Update Sensors</button>
+      <button onclick="testClusters()">Update Clusters</button>
+      <button onclick="zoomIn()">Zoom In</button>
+      <button onclick="zoomOut()">Zoom Out</button>
+      <button onclick="resetView()">Reset View</button>
+      <button onclick="toggleAnimation()">Toggle Animation</button>
+      <button onclick="clearData()">Clear Data</button>
+    </div>
+    
+    <div id="info">
+      <h2>Visualization Status</h2>
+      <p><span class="status">State:</span> <span id="state-info">Not initialized</span></p>
+      <p><span class="status">Blockchain:</span> <span id="blockchain-info">No data</span></p>
+      <p><span class="status">Quantum:</span> <span id="quantum-info">No data</span></p>
+      <p><span class="status">Sensors:</span> <span id="sensor-info">No data</span></p>
+      <p><span class="status">Clusters:</span> <span id="cluster-info">No data</span></p>
+      <p><span class="status">Animation:</span> <span id="animation-info">Stopped</span></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ChimeraVisualizer } from './chimera-visualizer.js';
+    
+    // Create visualizer
+    const canvas = document.getElementById('visualization');
+    const visualizer = new ChimeraVisualizer(canvas, 1200, 800);
+    
+    // Make visualizer global for button handlers
+    window.visualizer = visualizer;
+    window.animationRunning = false;
+    
+    // Initialize with example state
+    const initialState = {
+      population: 100,
+      energy: 50,
+      mutationRate: 0.05,
+      generation: 0,
+      blockchainGeneration: 0,
+      lastGenomeHash: null,
+      lastBlockNumber: null,
+      pendingProposalId: null
+    };
+    
+    visualizer.updateState(initialState);
+    visualizer.render();
+    
+    updateInfo();
+    
+    // Button handlers
+    window.testBlockchain = function() {
+      const gen = visualizer.state.blockchainGeneration + 1;
+      visualizer.state.blockchainGeneration = gen;
+      
+      visualizer.addBlockchainGeneration({
+        generation: gen,
+        hash: '0x' + Math.random().toString(16).substring(2, 42),
+        blockNumber: 10000 + gen,
+        timestamp: Date.now(),
+        verified: Math.random() > 0.3
+      });
+      
+      visualizer.state.lastGenomeHash = visualizer.blockchainHistory[visualizer.blockchainHistory.length - 1].hash;
+      visualizer.state.lastBlockNumber = visualizer.blockchainHistory[visualizer.blockchainHistory.length - 1].blockNumber;
+      
+      visualizer.render();
+      updateInfo();
+    };
+    
+    window.testQuantum = function() {
+      const backends = ['hardware', 'simulator', 'mock'];
+      const backend = backends[Math.floor(Math.random() * backends.length)];
+      
+      visualizer.updateQuantumStatus({
+        backend: backend,
+        poolLevel: Math.floor(Math.random() * 11),
+        entropyUsed: 256,
+        lastGenerated: Date.now(),
+        healthy: Math.random() > 0.2
+      });
+      
+      visualizer.render();
+      updateInfo();
+    };
+    
+    window.testSensors = function() {
+      visualizer.updateSensorReadings({
+        light: Math.random(),
+        temperature: Math.random(),
+        acceleration: Math.random(),
+        timestamp: Date.now(),
+        mode: Math.random() > 0.5 ? 'real' : 'mock',
+        healthy: Math.random() > 0.2
+      });
+      
+      visualizer.render();
+      updateInfo();
+    };
+    
+    window.testClusters = function() {
+      const actions = ['grow', 'conserve', 'maintain', 'adapt', 'explore'];
+      const clusterIds = ['main', 'secondary', 'tertiary'];
+      
+      const clusterId = clusterIds[Math.floor(Math.random() * clusterIds.length)];
+      const action = actions[Math.floor(Math.random() * actions.length)];
+      
+      visualizer.updateClusterDecision(clusterId, {
+        action: action,
+        confidence: Math.random(),
+        timestamp: Date.now()
+      });
+      
+      visualizer.render();
+      updateInfo();
+    };
+    
+    window.zoomIn = function() {
+      visualizer.zoom(0.2);
+      visualizer.render();
+    };
+    
+    window.zoomOut = function() {
+      visualizer.zoom(-0.2);
+      visualizer.render();
+    };
+    
+    window.resetView = function() {
+      visualizer.resetView();
+      visualizer.render();
+    };
+    
+    window.toggleAnimation = function() {
+      if (window.animationRunning) {
+        visualizer.stopAnimation();
+        window.animationRunning = false;
+        document.getElementById('animation-info').textContent = 'Stopped';
+        document.getElementById('animation-info').className = 'error';
+      } else {
+        visualizer.startAnimation();
+        window.animationRunning = true;
+        document.getElementById('animation-info').textContent = 'Running';
+        document.getElementById('animation-info').className = 'success';
+      }
+    };
+    
+    window.clearData = function() {
+      visualizer.clear();
+      visualizer.updateState(initialState);
+      visualizer.render();
+      updateInfo();
+    };
+    
+    function updateInfo() {
+      // State info
+      if (visualizer.state) {
+        document.getElementById('state-info').innerHTML = 
+          `Gen ${visualizer.state.generation}, Pop ${visualizer.state.population}, Energy ${visualizer.state.energy}`;
+        document.getElementById('state-info').className = 'success';
+      }
+      
+      // Blockchain info
+      if (visualizer.blockchainHistory.length > 0) {
+        document.getElementById('blockchain-info').innerHTML = 
+          `${visualizer.blockchainHistory.length} generations, Latest: Gen ${visualizer.state.blockchainGeneration}`;
+        document.getElementById('blockchain-info').className = 'success';
+      } else {
+        document.getElementById('blockchain-info').textContent = 'No data';
+        document.getElementById('blockchain-info').className = 'error';
+      }
+      
+      // Quantum info
+      if (visualizer.quantumStatus) {
+        document.getElementById('quantum-info').innerHTML = 
+          `${visualizer.quantumStatus.backend}, Pool: ${visualizer.quantumStatus.poolLevel}/10, ${visualizer.quantumStatus.healthy ? 'Healthy' : 'Unhealthy'}`;
+        document.getElementById('quantum-info').className = visualizer.quantumStatus.healthy ? 'success' : 'error';
+      } else {
+        document.getElementById('quantum-info').textContent = 'No data';
+        document.getElementById('quantum-info').className = 'error';
+      }
+      
+      // Sensor info
+      if (visualizer.sensorReadings) {
+        document.getElementById('sensor-info').innerHTML = 
+          `L:${(visualizer.sensorReadings.light * 100).toFixed(0)}% T:${(visualizer.sensorReadings.temperature * 100).toFixed(0)}% A:${(visualizer.sensorReadings.acceleration * 100).toFixed(0)}% (${visualizer.sensorReadings.mode})`;
+        document.getElementById('sensor-info').className = visualizer.sensorReadings.healthy ? 'success' : 'error';
+      } else {
+        document.getElementById('sensor-info').textContent = 'No data';
+        document.getElementById('sensor-info').className = 'error';
+      }
+      
+      // Cluster info
+      if (visualizer.clusterDecisions.size > 0) {
+        const decisions = Array.from(visualizer.clusterDecisions.entries())
+          .map(([id, d]) => `${id}:${d.action}(${(d.confidence * 100).toFixed(0)}%)`)
+          .join(', ');
+        document.getElementById('cluster-info').innerHTML = 
+          `${visualizer.clusterDecisions.size} active: ${decisions}`;
+        document.getElementById('cluster-info').className = 'success';
+      } else {
+        document.getElementById('cluster-info').textContent = 'No data';
+        document.getElementById('cluster-info').className = 'error';
+      }
+    }
+    
+    console.log('ChimeraVisualizer test page loaded');
+    console.log('Use the buttons to test different visualization features');
+  </script>
+</body>
+</html>

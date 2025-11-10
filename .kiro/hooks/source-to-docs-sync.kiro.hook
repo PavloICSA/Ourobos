@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Source to Docs Sync",
+  "description": "Monitors all source files (*.ts, *.js, *.py, *.java, *.go, *.rs, *.cpp, *.c, *.h, etc.) and configuration files (package.json, pyproject.toml, Cargo.toml, etc.) for changes and triggers documentation updates in README.md or /docs folder",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code or configuration files have been modified. Please review the changes and update the documentation accordingly. If a README.md exists, update it with any relevant changes to functionality, API, or usage. If a /docs folder exists, update the appropriate documentation files there. Ensure the documentation accurately reflects the current state of the codebase."
+  }
+}

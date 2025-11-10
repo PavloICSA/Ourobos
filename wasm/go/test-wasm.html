@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Neural Clusters WASM Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0f0;
+            border-bottom: 2px solid #0f0;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #0f0;
+            background: #001100;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #0ff;
+        }
+        .success {
+            color: #0f0;
+        }
+        .error {
+            color: #f00;
+        }
+        .info {
+            color: #ff0;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0ff;
+        }
+        pre {
+            background: #002200;
+            padding: 10px;
+            border: 1px solid #0f0;
+            overflow-x: auto;
+        }
+        .decision-log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #001100;
+            padding: 10px;
+            border: 1px solid #0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧠 Go Neural Clusters WASM Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>1. Module Loading</h2>
+        <div id="loading-status">Loading WASM module...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Cluster Creation</h2>
+        <button onclick="testCreateCluster()">Create Test Cluster</button>
+        <button onclick="testCreateMultipleClusters()">Create 5 Clusters</button>
+        <div id="creation-output"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. State Management</h2>
+        <button onclick="testUpdateState()">Update State</button>
+        <button onclick="testGetState()">Get State</button>
+        <div id="state-output"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Decision Making</h2>
+        <button onclick="testGetDecision()">Get Single Decision</button>
+        <button onclick="testContinuousDecisions()">Start Continuous Monitoring</button>
+        <button onclick="stopContinuousDecisions()">Stop Monitoring</button>
+        <div class="decision-log" id="decision-output"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Cluster Management</h2>
+        <button onclick="testListClusters()">List All Clusters</button>
+        <button onclick="testStopCluster()">Stop Test Cluster</button>
+        <button onclick="testStopAllClusters()">Stop All Clusters</button>
+        <div id="management-output"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Performance Test</h2>
+        <button onclick="testPerformance()">Run Performance Test</button>
+        <div id="performance-output"></div>
+    </div>
+
+    <!-- Load Go WASM runtime -->
+    <script src="../../public/wasm/go/wasm_exec.js"></script>
+    
+    <script>
+        let wasmLoaded = false;
+        let testClusterId = null;
+        let continuousInterval = null;
+        let decisionCount = 0;
+        
+        // Load WASM module
+        async function loadWasm() {
+            const statusDiv = document.getElementById('loading-status');
+            
+            try {
+                statusDiv.innerHTML = '<span class="info">Initializing Go runtime...</span>';
+                
+                const go = new Go();
+                const result = await WebAssembly.instantiateStreaming(
+                    fetch('../../public/wasm/go/neural_cluster.wasm'),
+                    go.importObject
+                );
+                
+                statusDiv.innerHTML = '<span class="info">Starting Go program...</span>';
+                
+                // Run the Go program (this doesn't block)
+                go.run(result.instance);
+                
+                // Wait for Go to initialize
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Verify functions are available
+                if (typeof goCreateCluster === 'undefined') {
+                    throw new Error('Go functions not exported');
+                }
+                
+                wasmLoaded = true;
+                statusDiv.innerHTML = '<span class="success">✓ WASM module loaded successfully!</span>';
+                
+            } catch (err) {
+                statusDiv.innerHTML = `<span class="error">✗ Failed to load WASM: ${err.message}</span>`;
+                console.error('WASM loading error:', err);
+            }
+        }
+        
+        // Test functions
+        function testCreateCluster() {
+            if (!wasmLoaded) {
+                alert('WASM not loaded yet');
+                return;
+            }
+            
+            const output = document.getElementById('creation-output');
+            testClusterId = goCreateCluster('test-cluster-' + Date.now());
+            output.innerHTML = `<span class="success">✓ Created cluster: ${testClusterId}</span>`;
+        }
+        
+        function testCreateMultipleClusters() {
+            if (!wasmLoaded) {
+                alert('WASM not loaded yet');
+                return;
+            }
+            
+            const output = document.getElementById('creation-output');
+            let html = '<span class="success">Created clusters:</span><br>';
+            
+            for (let i = 0; i < 5; i++) {
+                const id = goCreateCluster(`cluster-${i}-${Date.now()}`);
+                html += `<span class="success">  ✓ ${id}</span><br>`;
+            }
+            
+            output.innerHTML = html;
+        }
+        
+        function testUpdateState() {
+            if (!testClusterId) {
+                alert('Create a test cluster first');
+                return;
+            }
+            
+            const state = {
+                population: Math.random() * 150,
+                energy: Math.random() * 100,
+                mutation_rate: Math.random() * 0.2
+            };
+            
+            const result = goUpdateClusterState(testClusterId, JSON.stringify(state));
+            const output = document.getElementById('state-output');
+            
+            if (result === 'ok') {
+                output.innerHTML = `<span class="success">✓ State updated:</span><pre>${JSON.stringify(state, null, 2)}</pre>`;
+            } else {
+                output.innerHTML = `<span class="error">✗ Update failed: ${result}</span>`;
+            }
+        }
+        
+        function testGetState() {
+            if (!testClusterId) {
+                alert('Create a test cluster first');
+                return;
+            }
+            
+            const stateJSON = goGetClusterState(testClusterId);
+            const output = document.getElementById('state-output');
+            
+            if (stateJSON) {
+                const state = JSON.parse(stateJSON);
+                output.innerHTML = `<span class="success">✓ Current state:</span><pre>${JSON.stringify(state, null, 2)}</pre>`;
+            } else {
+                output.innerHTML = `<span class="error">✗ Failed to get state</span>`;
+            }
+        }
+        
+        function testGetDecision() {
+            if (!testClusterId) {
+                alert('Create a test cluster first');
+                return;
+            }
+            
+            // Wait a bit for decisions to be generated
+            setTimeout(() => {
+                const decisionJSON = goGetClusterDecision(testClusterId);
+                const output = document.getElementById('decision-output');
+                
+                if (decisionJSON) {
+                    const decision = JSON.parse(decisionJSON);
+                    const timestamp = new Date(decision.timestamp * 1000).toLocaleTimeString();
+                    output.innerHTML = `<span class="success">✓ Decision received:</span><pre>${JSON.stringify(decision, null, 2)}</pre>` + output.innerHTML;
+                } else {
+                    output.innerHTML = `<span class="info">No decision available yet (try again in a moment)</span>` + output.innerHTML;
+                }
+            }, 150);
+        }
+        
+        function testContinuousDecisions() {
+            if (!testClusterId) {
+                alert('Create a test cluster first');
+                return;
+            }
+            
+            if (continuousInterval) {
+                alert('Already monitoring');
+                return;
+            }
+            
+            const output = document.getElementById('decision-output');
+            output.innerHTML = '<span class="info">Starting continuous monitoring...</span><br>';
+            decisionCount = 0;
+            
+            continuousInterval = setInterval(() => {
+                const decisionJSON = goGetClusterDecision(testClusterId);
+                
+                if (decisionJSON) {
+                    const decision = JSON.parse(decisionJSON);
+                    const timestamp = new Date(decision.timestamp * 1000).toLocaleTimeString();
+                    decisionCount++;
+                    
+                    const line = `<span class="success">[${decisionCount}] ${timestamp} - ${decision.action} (${(decision.confidence * 100).toFixed(0)}%)</span><br>`;
+                    output.innerHTML = line + output.innerHTML;
+                }
+            }, 200);
+        }
+        
+        function stopContinuousDecisions() {
+            if (continuousInterval) {
+                clearInterval(continuousInterval);
+                continuousInterval = null;
+                
+                const output = document.getElementById('decision-output');
+                output.innerHTML = `<span class="info">Stopped monitoring. Total decisions: ${decisionCount}</span><br>` + output.innerHTML;
+            }
+        }
+        
+        function testListClusters() {
+            if (!wasmLoaded) {
+                alert('WASM not loaded yet');
+                return;
+            }
+            
+            const clusters = goListClusters();
+            const output = document.getElementById('management-output');
+            
+            output.innerHTML = `<span class="success">✓ Active clusters (${clusters.length}):</span><br>`;
+            clusters.forEach(id => {
+                output.innerHTML += `<span class="success">  • ${id}</span><br>`;
+            });
+        }
+        
+        function testStopCluster() {
+            if (!testClusterId) {
+                alert('Create a test cluster first');
+                return;
+            }
+            
+            const result = goStopCluster(testClusterId);
+            const output = document.getElementById('management-output');
+            
+            if (result === 'ok') {
+                output.innerHTML = `<span class="success">✓ Stopped cluster: ${testClusterId}</span>`;
+                testClusterId = null;
+            } else {
+                output.innerHTML = `<span class="error">✗ Failed to stop: ${result}</span>`;
+            }
+        }
+        
+        function testStopAllClusters() {
+            if (!wasmLoaded) {
+                alert('WASM not loaded yet');
+                return;
+            }
+            
+            const clusters = goListClusters();
+            const output = document.getElementById('management-output');
+            let html = '<span class="success">Stopping all clusters:</span><br>';
+            
+            clusters.forEach(id => {
+                const result = goStopCluster(id);
+                html += `<span class="success">  ✓ Stopped ${id}</span><br>`;
+            });
+            
+            output.innerHTML = html;
+            testClusterId = null;
+        }
+        
+        async function testPerformance() {
+            if (!wasmLoaded) {
+                alert('WASM not loaded yet');
+                return;
+            }
+            
+            const output = document.getElementById('performance-output');
+            output.innerHTML = '<span class="info">Running performance test...</span>';
+            
+            // Create 10 clusters
+            const startCreate = performance.now();
+            const clusterIds = [];
+            for (let i = 0; i < 10; i++) {
+                clusterIds.push(goCreateCluster(`perf-cluster-${i}`));
+            }
+            const createTime = performance.now() - startCreate;
+            
+            // Update states 100 times
+            const startUpdate = performance.now();
+            for (let i = 0; i < 100; i++) {
+                const state = JSON.stringify({
+                    population: Math.random() * 150,
+                    energy: Math.random() * 100,
+                    mutation_rate: Math.random() * 0.2
+                });
+                goUpdateClusterState(clusterIds[i % 10], state);
+            }
+            const updateTime = performance.now() - startUpdate;
+            
+            // Wait for decisions to accumulate
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Collect 100 decisions
+            const startDecision = performance.now();
+            let decisionsCollected = 0;
+            for (let i = 0; i < 100; i++) {
+                const decision = goGetClusterDecision(clusterIds[i % 10]);
+                if (decision) decisionsCollected++;
+            }
+            const decisionTime = performance.now() - startDecision;
+            
+            // Clean up
+            clusterIds.forEach(id => goStopCluster(id));
+            
+            output.innerHTML = `
+                <span class="success">✓ Performance Test Results:</span><br>
+                <pre>
+Create 10 clusters:     ${createTime.toFixed(2)}ms (${(createTime/10).toFixed(2)}ms per cluster)
+Update state 100 times: ${updateTime.toFixed(2)}ms (${(updateTime/100).toFixed(2)}ms per update)
+Collect 100 decisions:  ${decisionTime.toFixed(2)}ms (${(decisionTime/100).toFixed(2)}ms per decision)
+Decisions collected:    ${decisionsCollected}/100
+                </pre>
+            `;
+        }
+        
+        // Load WASM on page load
+        loadWasm();
+    </script>
+</body>
+</html>

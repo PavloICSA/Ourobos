@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Update README & Documentation",
+  "description": "Monitors changes to README files and related documentation, then triggers an AI review to ensure consistency, accuracy, and completeness across all documentation files",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Documentation files have been modified. Please review the changes and:\n1. Ensure consistency across all README and documentation files\n2. Verify that technical details match the current codebase structure\n3. Check that setup instructions are accurate and complete\n4. Update cross-references between documentation files if needed\n5. Ensure the documentation reflects the current project state and features\n6. Validate that code examples and commands are correct\n7. Suggest improvements for clarity and completeness"
+  }
+}
