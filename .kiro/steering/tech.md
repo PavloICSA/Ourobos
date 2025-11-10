@@ -72,8 +72,8 @@ npm run preview            # Preview production build
 
 ```bash
 # Clone repository
-git clone <repo-url>
-cd ouroboros-chimera
+git clone https://www.github.com/PavloICSA/Ourobos.git
+cd Ourobos
 
 # Install JavaScript dependencies
 npm install

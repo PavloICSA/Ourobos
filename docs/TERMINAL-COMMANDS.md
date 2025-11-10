@@ -1,5 +1,7 @@
 # Pascal Terminal Commands Reference
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Complete reference for all commands available in the OuroborOS-Chimera Pascal terminal.
 
 ## Table of Contents

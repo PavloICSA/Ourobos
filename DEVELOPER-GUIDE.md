@@ -1,5 +1,7 @@
 # Developer Guide
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Quick reference for developers working on OuroborOS-Chimera.
 
 > **Project Structure**: This repository contains **OuroborOS-Chimera**, a polyglot digital organism with blockchain governance, quantum entropy, and biological sensors. The system combines core components (Lisp, ALGOL, Rust, Fortran, orchestrator, terminal) with extended features (blockchain, quantum, biosensor, and meta-compiler).
@@ -71,8 +73,8 @@ fpc -version
 
 ```bash
 # Clone and install
-git clone <repo-url>
-cd ouroboros-chimera
+git clone https://www.github.com/PavloICSA/Ourobos.git
+cd Ourobos
 npm install
 
 # Build WASM modules

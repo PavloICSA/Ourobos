@@ -1,5 +1,7 @@
 # OuroborOS-Chimera Documentation
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Welcome to the OuroborOS-Chimera documentation. This directory contains comprehensive guides for users and developers.
 
 ## Documentation Index

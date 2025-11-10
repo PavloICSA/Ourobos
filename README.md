@@ -1,5 +1,7 @@
 # OuroborOS-Chimera
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 A fully local, static web application that simulates a self-modifying "living organism" using multiple programming languages compiled to WebAssembly, with blockchain governance, quantum entropy, and biological sensors.
 
 ## Overview

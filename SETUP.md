@@ -1,5 +1,7 @@
 # OuroborOS-Chimera Setup Guide
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Complete setup instructions for all components.
 
 ## Prerequisites
@@ -54,8 +56,8 @@ Complete setup instructions for all components.
 ### 1. Clone Repository
 
 ```bash
-git clone <repository-url>
-cd ouroboros-chimera
+git clone https://www.github.com/PavloICSA/Ourobos.git
+cd Ourobos
 ```
 
 ### 2. Install JavaScript Dependencies

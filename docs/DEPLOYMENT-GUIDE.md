@@ -1,5 +1,7 @@
 # Deployment Guide
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Complete guide for deploying OuroborOS-Chimera to production environments.
 
 ## Table of Contents

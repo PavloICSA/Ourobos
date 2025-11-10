@@ -1,5 +1,7 @@
 # Service Setup Guide
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 This guide covers setting up all external services required for OuroborOS-Chimera: blockchain, quantum entropy, and bio sensors.
 
 ## Table of Contents

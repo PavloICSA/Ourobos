@@ -1,5 +1,7 @@
 # Ourocode Specification
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Complete specification for Ourocode, the intermediate representation used by OuroborOS-Chimera's meta-compiler.
 
 ## Table of Contents

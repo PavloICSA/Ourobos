@@ -1,5 +1,7 @@
 # OuroborOS-Chimera Architecture
 
+**Repository:** https://www.github.com/PavloICSA/Ourobos.git
+
 Comprehensive architecture overview of the OuroborOS-Chimera system.
 
 ## Table of Contents
