@@ -23,14 +23,14 @@ export class BioSensorClient {
    * @param {boolean} useMock - Force mock mode (default: false)
    * @param {string|null} apiKey - Optional API key for authentication
    */
-  constructor(apiUrl = 'http://raspberrypi.local:5001', useMock = false, apiKey = null) {
+  constructor(apiUrl = 'http://localhost:5001', useMock = false, apiKey = null) {
     this.apiUrl = apiUrl;
     this.useMock = useMock;
     this.apiKey = apiKey;
     this.lastReadings = null;
     this.mockTime = Date.now() / 1000;
     
-    console.log(`BioSensorClient initialized (${useMock ? 'MOCK' : 'REAL'} mode)`);
+    console.log(`BioSensorClient initialized (${useMock ? 'MOCK' : 'REAL'} mode) with URL: ${this.apiUrl}`);
   }
   
   /**

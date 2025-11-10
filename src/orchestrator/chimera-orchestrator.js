@@ -252,9 +252,11 @@ export class ChimeraOrchestrator {
   async initBioSensor() {
     try {
       console.log('Initializing bio sensor client...');
+      const bioSensorUrl = 'http://localhost:5001'; // Force localhost for demo
+      console.log('Bio sensor URL:', bioSensorUrl);
       
       this.bioSensorClient = new BioSensorClient(
-        config.bioSensor.apiUrl,
+        bioSensorUrl,
         this.options.useMockBioSensor
       );
       
@@ -1500,6 +1502,69 @@ export class ChimeraOrchestrator {
     } else if (terminal) {
       terminal.writeLine('Error recovery not initialized', 'warning');
     }
+  }
+
+  /**
+   * Send a message to a component (compatibility method for commands)
+   * @param {string} target - Target component
+   * @param {Object} message - Message object
+   * @returns {Promise<any>}
+   */
+  async send(target, message) {
+    switch (target) {
+      case 'state':
+        if (message.type === 'get_status') {
+          return {
+            generation: this.currentState.generation,
+            age: this.currentState.age || 0,
+            population: this.currentState.population,
+            energy: this.currentState.energy,
+            mutationRate: this.currentState.mutationRate,
+            ruleCount: this.currentState.activeRules?.length || 0
+          };
+        } else if (message.type === 'reset') {
+          // Reset to initial state
+          this.currentState = this.createInitialState();
+          return { success: true };
+        }
+        break;
+      
+      case 'evolution':
+        // Handle evolution commands
+        if (message.type === 'evolve') {
+          const steps = message.payload.steps || 1;
+          for (let i = 0; i < steps; i++) {
+            this.currentState.generation++;
+            this.currentState.age = (this.currentState.age || 0) + 1;
+          }
+          return { generation: this.currentState.generation };
+        } else if (message.type === 'mutate') {
+          // Apply mutation from compiled code
+          this.currentState.generation++;
+          this.currentState.lastMutation = message.payload.code;
+          this.currentState.mutationCount = (this.currentState.mutationCount || 0) + 1;
+          return { success: true, generation: this.currentState.generation };
+        }
+        break;
+      
+      case 'compiler':
+        if (message.type === 'compile' && this.metaCompiler) {
+          try {
+            const language = message.payload.language || 'algol';
+            const result = await this.metaCompiler.compile(message.payload.source, language);
+            return { success: true, lisp: result.code || JSON.stringify(result) };
+          } catch (error) {
+            return { success: false, errors: [{ line: 1, column: 1, message: error.message }] };
+          }
+        }
+        break;
+      
+      case 'persistence':
+        // Handle persistence commands
+        return { success: false, error: 'Persistence not yet implemented' };
+    }
+    
+    throw new Error(`Unknown target: ${target} or message type: ${message.type}`);
   }
 }
 

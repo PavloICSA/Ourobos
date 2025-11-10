@@ -5,9 +5,7 @@ export default defineConfig({
     port: 3000,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      // WASM MIME type headers
-      'Content-Type': 'application/wasm'
+      'Cross-Origin-Embedder-Policy': 'require-corp'
     },
     fs: {
       // Allow serving files from WASM directories

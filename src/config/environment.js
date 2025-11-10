@@ -57,7 +57,7 @@ const developmentConfig = {
   
   quantum: {
     apiUrl: 'http://localhost:5000',
-    useMock: true, // Use mock by default in dev
+    useMock: false, // Use real service for demo
     enableCache: true,
     cacheSize: 10,
     timeout: 5000
@@ -65,7 +65,7 @@ const developmentConfig = {
   
   biosensor: {
     apiUrl: 'http://localhost:5001',
-    useMock: true, // Use mock by default in dev
+    useMock: false, // Use real service for demo
     pollInterval: 1000,
     timeout: 2000
   },

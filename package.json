@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:quick": "vite build",
     "build:optimized": "npm run build:all && npm run optimize:wasm && npm run build",
     "preview": "vite preview",
     "test": "vitest --run",

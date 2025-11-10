@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build:optimized"
+  command = "npm run build:quick"
   publish = "dist"
   
 [build.environment]

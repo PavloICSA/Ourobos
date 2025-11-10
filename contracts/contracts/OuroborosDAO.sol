@@ -267,7 +267,14 @@ contract OuroborosDAO {
     /**
      * @dev Get proposal details
      * @param _proposalId The ID of the proposal
-     * @return Proposal details
+     * @return id The proposal ID
+     * @return genomeHash The genome hash
+     * @return ourocodeHash The OuroCode hash
+     * @return proposer The address of the proposer
+     * @return createdAt The creation timestamp
+     * @return votesFor The number of votes in favor
+     * @return votesAgainst The number of votes against
+     * @return executed Whether the proposal has been executed
      */
     function getProposal(uint256 _proposalId)
         external

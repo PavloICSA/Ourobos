@@ -7,7 +7,8 @@
         content="default-src 'self'; 
                  script-src 'self' 'wasm-unsafe-eval'; 
                  style-src 'self' 'unsafe-inline'; 
-                 worker-src 'self' blob:;">
+                 worker-src 'self' blob:;
+                 connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*;">
   <title>OuroborOS-Chimera - Living Organism Simulation</title>
   <link rel="stylesheet" href="/src/styles/main.css">
 </head>

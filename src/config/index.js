@@ -37,7 +37,7 @@ const defaultConfig = {
 
   // Bio sensor network
   bioSensor: {
-    apiUrl: 'http://raspberrypi.local:5001',
+    apiUrl: 'http://localhost:5001',
     useMock: false,
     enabled: true,
     pollInterval: 1000, // ms

@@ -81,7 +81,7 @@ export class ServiceIntegration {
     
     try {
       // Ensure connection
-      if (!bridge.isConnected()) {
+      if (typeof bridge.isConnected === 'function' && !bridge.isConnected()) {
         await bridge.connect();
       }
       
