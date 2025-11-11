@@ -1,8 +1,8 @@
-# OuroborOS-Chimera Setup Guide
+# Setup Guide
+
+Complete setup instructions for OuroborOS-Chimera.
 
 **Repository:** https://www.github.com/PavloICSA/Ourobos.git
-
-Complete setup instructions for all components.
 
 ## Prerequisites
 
@@ -24,13 +24,9 @@ Complete setup instructions for all components.
    wasm-pack --version
    ```
 
-4. **Go 1.21+**
-   - Download: https://golang.org/dl/
-   - Verify: `go version`
-
 ### Optional (for full features)
 
-5. **Emscripten SDK** (for Fortran WASM)
+4. **Emscripten SDK** (for Fortran WASM)
    ```bash
    git clone https://github.com/emscripten-core/emsdk.git
    cd emsdk
@@ -39,11 +35,15 @@ Complete setup instructions for all components.
    source ./emsdk_env.sh
    ```
 
+5. **Go 1.21+** (for Go WASM)
+   - Download: https://golang.org/dl/
+   - Verify: `go version`
+
 6. **Free Pascal** (for Pascal terminal)
    - Download: https://www.freepascal.org/download.html
    - Verify: `fpc -version`
 
-7. **Python 3.9+** (for services)
+7. **Python 3.9+** (for external services)
    - Download: https://www.python.org/downloads/
    - Verify: `python --version`
 
@@ -51,7 +51,7 @@ Complete setup instructions for all components.
    - Download: https://www.docker.com/get-started
    - Verify: `docker --version`
 
-## Installation Steps
+## Installation
 
 ### 1. Clone Repository
 
@@ -66,7 +66,7 @@ cd Ourobos
 npm install
 ```
 
-### 3. Install Contract Dependencies
+### 3. Install Contract Dependencies (Optional)
 
 ```bash
 cd contracts
@@ -81,48 +81,55 @@ cp .env.example .env
 # Edit .env with your settings
 ```
 
-### 5. Build All Components
+### 5. Build Components
 
-#### Option A: Unified Build (Linux/Mac)
+#### Option A: Quick Build (Core Only)
+
+```bash
+# Build Rust and Fortran WASM
+npm run build:rust
+npm run build:fortran
+
+# Start development server
+npm run dev
+```
+
+#### Option B: Full Build (All Components)
+
+**Linux/Mac:**
 ```bash
 bash build_all.sh
 ```
 
-#### Option B: Unified Build (Windows)
+**Windows:**
 ```bash
 build_all.cmd
 ```
 
-#### Option C: Build Individually
-```bash
-# Rust WASM
-npm run build:rust
-
-# Fortran WASM (requires Emscripten)
-npm run build:fortran
-
-# Go WASM
-npm run build:go
-
-# Pascal WASM (requires Free Pascal)
-npm run build:pascal
-
-# Smart contracts
-npm run build:contracts
-
-# Frontend
-npm run build
-```
+This builds:
+- Rust WASM orchestrator
+- Fortran WASM numeric engine
+- Go WASM neural clusters
+- Pascal WASM terminal
+- Solidity smart contracts
+- Frontend application
 
 ## Running the System
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Core System Only (Recommended for First Run)
 
 ```bash
-# Start all services
-docker-compose up
+npm run dev
+```
 
-# Access at http://localhost:3000
+Access at `http://localhost:3000`
+
+The system runs with mock services for blockchain, quantum, and biosensor features.
+
+### Option 2: With Docker Compose (All Services)
+
+```bash
+docker-compose up
 ```
 
 This starts:
@@ -130,11 +137,12 @@ This starts:
 - Quantum entropy service (port 5000)
 - Frontend dev server (port 3000)
 
-### Option 2: Manual Setup
+### Option 3: Manual Service Setup
 
 #### Terminal 1: Blockchain
 
 ```bash
+cd contracts
 npm run blockchain:start
 ```
 
@@ -143,6 +151,7 @@ Wait for "Started HTTP and WebSocket JSON-RPC server"
 #### Terminal 2: Deploy Contracts
 
 ```bash
+cd contracts
 npm run deploy:contracts
 ```
 
@@ -184,8 +193,6 @@ VITE_BIOSENSOR_MOCK=true
 npm run dev
 ```
 
-Access at http://localhost:3000
-
 ## Verification
 
 ### Check WASM Modules
@@ -197,16 +204,16 @@ ls -la public/wasm/
 Should see:
 - `rust/` - Rust orchestrator
 - `fortran/` - Fortran numeric engine
-- `go/` - Go neural clusters
+- `go/` - Go neural clusters (if built)
 - `pascal/` - Pascal terminal (if built)
 
-### Check Smart Contracts
+### Test in Browser
 
-```bash
-ls -la contracts/artifacts/contracts/
-```
-
-Should see compiled contract artifacts.
+1. Open `http://localhost:3000`
+2. Type `status` to check system health
+3. Type `help` to see available commands
+4. Type `lisp` to enter REPL mode
+5. Try `(+ 1 2 3)` - should return `6`
 
 ### Test Services
 
@@ -229,26 +236,39 @@ curl http://raspberrypi.local:5001/api/sensors/health
 ```bash
 rustup update
 rustup target add wasm32-unknown-unknown
+cd wasm/rust
+cargo clean
+wasm-pack build --target web
+```
+
+**Fortran:**
+```bash
+# Check Emscripten
+emcc --version
+
+# Check f2c
+which f2c
+
+# Rebuild
+cd wasm/fortran
+bash build.sh
 ```
 
 **Go:**
 ```bash
 export GOOS=js
 export GOARCH=wasm
-go build -o test.wasm
-```
-
-**Fortran:**
-```bash
-emcc --version  # Should show Emscripten version
+cd wasm/go
+go build -o ../../public/wasm/go/neural_cluster.wasm
 ```
 
 ### Blockchain Connection Failed
 
-1. Check Hardhat is running: `npm run blockchain:start`
+1. Check Hardhat is running: `ps aux | grep hardhat`
 2. Verify RPC URL in `.env`: `VITE_BLOCKCHAIN_RPC=http://localhost:8545`
-3. Deploy contracts: `npm run deploy:contracts`
+3. Deploy contracts: `cd contracts && npm run deploy:contracts`
 4. Update contract address in `.env`
+5. Or enable mock mode: `VITE_BLOCKCHAIN_MOCK=true`
 
 ### Services Unavailable
 
@@ -262,6 +282,7 @@ Or individually:
 ```bash
 VITE_QUANTUM_MOCK=true
 VITE_BIOSENSOR_MOCK=true
+VITE_BLOCKCHAIN_MOCK=true
 ```
 
 ### Port Already in Use
@@ -272,72 +293,107 @@ Change ports in configuration:
 - Quantum: `services/quantum/quantum_entropy.py` (default 5000)
 - Bio Sensor: `services/biosensor/bio_sensor_node.py` (default 5001)
 
+## Environment Variables
+
+### Core Settings
+
+```bash
+# .env
+NODE_ENV=development
+VITE_LOG_LEVEL=info
+```
+
+### Blockchain Settings
+
+```bash
+# Local development
+VITE_BLOCKCHAIN_RPC=http://localhost:8545
+VITE_CHAIN_ID=1337
+VITE_CONTRACT_ADDRESS=0x...
+VITE_BLOCKCHAIN_MOCK=false
+
+# Or use mock mode
+VITE_BLOCKCHAIN_MOCK=true
+```
+
+### Service Settings
+
+```bash
+# Quantum
+VITE_QUANTUM_API=http://localhost:5000
+VITE_QUANTUM_MOCK=false
+
+# Bio Sensors
+VITE_BIOSENSOR_API=http://raspberrypi.local:5001
+VITE_BIOSENSOR_MOCK=false
+
+# Or enable all mocks
+VITE_MOCK_ALL=true
+```
+
 ## Development Workflow
 
 ### 1. Start Services
 
 ```bash
+# Option A: Docker
 docker-compose up -d
-# Or manually start blockchain, quantum, biosensor
+
+# Option B: Manual
+# Start blockchain, quantum, biosensor in separate terminals
 ```
 
-### 2. Deploy Contracts
-
-```bash
-npm run deploy:contracts
-```
-
-### 3. Start Dev Server
+### 2. Start Dev Server
 
 ```bash
 npm run dev
 ```
 
-### 4. Make Changes
+### 3. Make Changes
 
 - Edit source files in `src/`
 - Vite hot-reloads automatically
 
-### 5. Rebuild WASM (if needed)
+### 4. Rebuild WASM (if needed)
 
 ```bash
 npm run build:rust    # After Rust changes
+npm run build:fortran # After Fortran changes
 npm run build:go      # After Go changes
-# etc.
 ```
 
-### 6. Run Tests
+### 5. Run Tests
 
 ```bash
 npm test              # Frontend tests
 cd contracts && npm test  # Contract tests
 ```
 
-## Production Deployment
+## Production Build
 
-### 1. Build Production Bundle
+### Build for Production
 
 ```bash
-npm run build:all
+# Full optimized build
+npm run build:optimized
 ```
 
-### 2. Deploy Static Files
+This runs:
+1. `npm run build:all` - Build contracts + WASM
+2. `npm run optimize:wasm` - Optimize WASM modules
+3. `npm run build` - Build frontend
+
+### Deploy
 
 Upload `dist/` folder to:
-- Netlify
-- Firebase Hosting
-- Vercel
+- Netlify: `netlify deploy --prod`
+- Firebase: `firebase deploy`
+- Vercel: `vercel --prod`
 - Any static host
 
-### 3. Deploy Services
+### Production Environment
 
-- **Blockchain**: Use Ethereum testnet (Sepolia, Goerli) or mainnet
-- **Quantum**: Deploy to cloud VM (AWS, GCP, Azure)
-- **Bio Sensors**: Keep on local Raspberry Pi network
-
-### 4. Update Configuration
-
-Update `.env` with production URLs:
+Update `.env.production`:
 ```bash
 VITE_BLOCKCHAIN_RPC=https://sepolia.infura.io/v3/YOUR_KEY
 VITE_CONTRACT_ADDRESS=0x...
@@ -347,15 +403,20 @@ VITE_BIOSENSOR_API=http://your-pi-ip:5001
 
 ## Next Steps
 
-1. Read [README.chimera.md](./README.chimera.md) for usage
-2. Review [requirements](./kiro/specs/ouroboros-chimera/requirements.md)
-3. Study [design](./kiro/specs/ouroboros-chimera/design.md)
-4. Follow [tasks](./kiro/specs/ouroboros-chimera/tasks.md) for implementation
+1. Read [README.md](./README.md) for feature overview
+2. Read [TESTING_GUIDE.md](./TESTING_GUIDE.md) for testing procedures
+3. Explore component READMEs in `src/*/README.md`
+4. Try example programs in `/programs` directory
 
 ## Support
 
 For issues:
 1. Check troubleshooting section above
-2. Review component READMEs in subdirectories
+2. Review component READMEs
 3. Check service logs: `docker-compose logs`
 4. Verify all prerequisites installed
+5. Try mock mode for offline development
+
+---
+
+**Happy coding!** 🚀

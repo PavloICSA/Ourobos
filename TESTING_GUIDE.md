@@ -1,27 +1,27 @@
-# ChimeraOS Extended Features - Testing Guide
+# Testing Guide
 
-## Quick Verification Tests
+Comprehensive testing procedures for OuroborOS-Chimera.
 
-Run these commands to verify all features are working correctly.
+## Quick Verification
 
-## 1. Basic System Check
+Run these commands to verify all features work correctly.
+
+### 1. Basic System Check
 
 ```bash
-# Check help system
 > help
 # Should show basic commands
 
 > help-extended
 # Should show extended programming commands
 
-# Check status
 > status
 # Should show organism state and service health
 ```
 
-## 2. REPL Mode Tests
+### 2. REPL Mode Tests
 
-### Lisp REPL
+#### Lisp REPL
 ```bash
 > lisp
 lisp> (+ 1 2 3)
@@ -43,7 +43,7 @@ lisp> (exit)
 # Should return to command mode
 ```
 
-### ALGOL REPL
+#### ALGOL REPL
 ```bash
 > algol
 algol> BEGIN REAL x := 10.0; x * 2 END
@@ -53,7 +53,7 @@ algol> EXIT
 # Should return to command mode
 ```
 
-### Eval Command
+#### Eval Command
 ```bash
 > eval (+ 10 20)
 # Expected: 30
@@ -62,9 +62,9 @@ algol> EXIT
 # Expected: (1 2 3 4 5)
 ```
 
-## 3. Filesystem Tests
+### 3. Filesystem Tests
 
-### Navigation
+#### Navigation
 ```bash
 > pwd
 # Expected: /
@@ -78,9 +78,6 @@ algol> EXIT
 > pwd
 # Expected: /programs
 
-> ls
-# Should show example programs
-
 > cd ..
 # Expected: Changed directory to /
 
@@ -88,7 +85,7 @@ algol> EXIT
 # Expected: /
 ```
 
-### File Operations
+#### File Operations
 ```bash
 > cat /README.txt
 # Should display welcome message
@@ -109,7 +106,7 @@ algol> EXIT
 # test.txt should be gone
 ```
 
-### Directory Operations
+#### Directory Operations
 ```bash
 > mkdir /testdir
 # Expected: Directory created: /testdir
@@ -127,10 +124,10 @@ algol> EXIT
 # Back to root
 
 > rm /testdir
-# Expected: Deleted: /testdir (if empty)
+# Expected: Deleted: /testdir
 ```
 
-### Search Operations
+#### Search Operations
 ```bash
 > find lisp
 # Should find .lisp files
@@ -139,9 +136,9 @@ algol> EXIT
 # Should find files containing "lambda"
 ```
 
-## 4. Program Execution Tests
+### 4. Program Execution Tests
 
-### Run Lisp Program
+#### Run Lisp Program
 ```bash
 > cat /programs/hello.lisp
 # Should show program content
@@ -153,7 +150,7 @@ algol> EXIT
 # Should work if hello.lisp defines greet function
 ```
 
-### Write and Run Custom Program
+#### Write and Run Custom Program
 ```bash
 > write /programs/test.lisp (def add (lambda (a b) (+ a b)))
 # Expected: File written: /programs/test.lisp
@@ -165,7 +162,7 @@ algol> EXIT
 # Expected: 30
 ```
 
-### Multiline Script
+#### Multiline Script
 ```bash
 > script lisp
 # Enter multiline mode
@@ -181,9 +178,8 @@ algol> EXIT
 # Expected: 120
 ```
 
-## 5. ALGOL Compilation Tests
+### 5. ALGOL Compilation Tests
 
-### Compile ALGOL
 ```bash
 > write /programs/test.algol BEGIN REAL x := 10.0; x * 2 END
 # Expected: File written
@@ -193,17 +189,14 @@ algol> EXIT
 # - Compilation successful
 # - Generated Lisp code
 # - Saved to: /programs/test.lisp
-```
 
-### Run ALGOL Program
-```bash
-> run /programs/evolve.algol
+> run /programs/test.algol
 # Should execute and show result
 ```
 
-## 6. Environment Management Tests
+### 6. Environment Management Tests
 
-### Variables
+#### Variables
 ```bash
 > set x 42
 # Expected: Set x = 42
@@ -215,7 +208,7 @@ algol> EXIT
 # Expected: 52
 ```
 
-### Functions
+#### Functions
 ```bash
 > eval (def double (lambda (x) (* x 2)))
 # Expected: <function>
@@ -227,7 +220,7 @@ algol> EXIT
 # Expected: 10
 ```
 
-### Environment Info
+#### Environment Info
 ```bash
 > env
 # Should show:
@@ -236,85 +229,162 @@ algol> EXIT
 # - Environment info
 ```
 
-## 7. WASM Integration Tests
+### 7. WASM Integration Tests
 
-### Rust Module (if loaded)
 ```bash
 > rust calculate 10 20
 # Should call Rust function and show result
 # Or show error if module not loaded
-```
 
-### Go Clusters (if loaded)
-```bash
 > go list
 # Should show active clusters
+# Or show error if module not loaded
 
-> go create test-cluster
-# Expected: Cluster created: test-cluster
-
-> go list
-# Should now include test-cluster
-
-> go decide main
-# Should return a decision
-```
-
-### From Lisp
-```bash
 > eval (call-wasm "rust" "calculate" 10 20)
 # Should call WASM module
 # Or show error if not available
 ```
 
-## 8. Complex Integration Tests
+### 8. Evolution Tests
 
-### Test 1: Write, Run, and Use Function
 ```bash
-> write /programs/math.lisp (begin (def square (lambda (x) (* x x))) (def cube (lambda (x) (* x x x))))
-> run /programs/math.lisp
-> eval (square 5)
-# Expected: 25
-> eval (cube 3)
-# Expected: 27
+> evolve 5
+# Should run 5 evolution steps
+
+> status
+# Should show updated organism state
+
+> save test-snapshot
+# Should save current state
+
+> load test-snapshot
+# Should restore saved state
 ```
 
-### Test 2: Recursive Function
+## Automated Testing
+
+### Unit Tests
+
 ```bash
-> script lisp
-... (def fib (lambda (n)
-...   (if (<= n 1)
-...     n
-...     (+ (fib (- n 1)) (fib (- n 2))))))
-... (fib 10)
-... END
-# Expected: 55
+# Run all tests
+npm test
+
+# Run specific test file
+npx vitest src/terminal/terminal.test.js
+
+# Run with UI
+npx vitest --ui
+
+# Run in watch mode
+npm run test:watch
 ```
 
-### Test 3: List Processing
+### Integration Tests
+
 ```bash
-> eval (def map (lambda (f lst) (if (null? lst) (list) (cons (f (car lst)) (map f (cdr lst))))))
-> eval (def double (lambda (x) (* x 2)))
-> eval (map double (list 1 2 3 4 5))
-# Expected: (2 4 6 8 10)
+# Test Lisp interpreter
+node src/lisp/example.js
+
+# Test ALGOL compiler
+node src/algol/example.js
+
+# Test orchestrator
+node src/orchestrator/example.js
+
+# Test smart contracts
+cd contracts && npx hardhat test
 ```
 
-### Test 4: File Organization
+### End-to-End Tests
+
 ```bash
-> mkdir /myproject
-> cd /myproject
-> write utils.lisp (def add (lambda (a b) (+ a b)))
-> write main.lisp (begin (def result (add 10 20)) result)
+# Build production bundle
+npm run build
+
+# Preview production build
+npm run preview
+
+# Test in browser at http://localhost:4173
+```
+
+## Performance Tests
+
+### Compilation Performance
+
+```bash
+> eval (def fib (lambda (n) (if (<= n 1) n (+ (fib (- n 1)) (fib (- n 2))))))
+> eval (fib 20)
+# Should complete in reasonable time
+# Expected: 6765
+```
+
+### Large File Operations
+
+```bash
+> mkdir /test
+> cd /test
+> write file1.lisp (def f1 () 1)
+> write file2.lisp (def f2 () 2)
+> write file3.lisp (def f3 () 3)
 > ls
-# Should show both files
-> run utils.lisp
-> run main.lisp
-# Expected: 30
+# Should list all files quickly
+
+> find file
+# Should find all files quickly
 ```
 
-## 9. Error Handling Tests
+## Service Health Tests
+
+### Check Service Status
+
+```bash
+> status
+# Should show:
+# - Organism state (energy, health, generation)
+# - Service health (blockchain, quantum, biosensor)
+# - WASM module status
+```
+
+### Test Mock Mode
+
+```bash
+# In .env.local
+VITE_MOCK_ALL=true
+
+# Restart server
+npm run dev
+
+# Test commands
+> status
+# Should show all services in mock mode
+
+> evolve 5
+# Should work with simulated services
+```
+
+### Test Real Services
+
+```bash
+# Start services
+docker-compose up -d
+
+# Test blockchain
+> status
+# Should show blockchain connected
+
+# Test quantum
+> eval (call-js "get-entropy")
+# Should return quantum random number
+
+# Test biosensor
+> eval (call-js "get-sensor-data")
+# Should return sensor readings
+```
+
+## Error Handling Tests
 
 ### Invalid Commands
+
 ```bash
 > invalidcommand
 # Expected: Unknown command error
@@ -330,6 +400,7 @@ algol> EXIT
 ```
 
 ### Syntax Errors
+
 ```bash
 > eval (+ 1 2
 # Expected: Parse error (unclosed parenthesis)
@@ -339,6 +410,7 @@ algol> EXIT
 ```
 
 ### Type Errors
+
 ```bash
 > eval (+ "hello" 5)
 # Expected: Type error or NaN
@@ -347,63 +419,36 @@ algol> EXIT
 # Expected: Error (not a list)
 ```
 
-## 10. Performance Tests
+## Browser Compatibility Tests
 
-### Large Computation
-```bash
-> eval (def fib (lambda (n) (if (<= n 1) n (+ (fib (- n 1)) (fib (- n 2))))))
-> eval (fib 20)
-# Should complete (may take a moment)
-# Expected: 6765
-```
+Test in multiple browsers:
 
-### Many Files
-```bash
-> mkdir /test
-> cd /test
-# Create multiple files
-> write file1.lisp (def f1 () 1)
-> write file2.lisp (def f2 () 2)
-> write file3.lisp (def f3 () 3)
-> ls
-# Should list all files
-> find file
-# Should find all files
-```
+- [ ] Chrome 90+
+- [ ] Firefox 88+
+- [ ] Safari 14+
+- [ ] Edge 90+
 
-## 11. State Persistence Tests
+Verify:
+- [ ] WASM modules load
+- [ ] Terminal renders correctly
+- [ ] Commands execute properly
+- [ ] No console errors
+- [ ] Performance is acceptable
 
-### Lisp Environment
-```bash
-> eval (def x 100)
-> eval (def y 200)
-> eval (+ x y)
-# Expected: 300
+## Success Criteria
 
-# Variables should persist across commands
-> eval x
-# Expected: 100
-```
+The system is working correctly if:
 
-### Filesystem Persistence
-```bash
-> write /persist.txt Test
-> cat /persist.txt
-# Expected: Test
-
-# File should persist until deleted
-> ls
-# Should show persist.txt
-```
-
-## Expected Results Summary
-
-All tests should:
-- ✅ Execute without crashes
-- ✅ Return expected results
-- ✅ Show appropriate error messages for invalid input
-- ✅ Maintain state correctly
-- ✅ Handle edge cases gracefully
+1. ✅ All REPL modes function (lisp, algol, multiline)
+2. ✅ Filesystem operations work (read, write, navigate, search)
+3. ✅ Programs can be written, stored, and executed
+4. ✅ Environment management works (variables, functions)
+5. ✅ WASM integration functions (or gracefully degrades)
+6. ✅ Error handling is appropriate
+7. ✅ State persists correctly
+8. ✅ No crashes or hangs
+9. ✅ Help system is comprehensive
+10. ✅ All commands work as documented
 
 ## Troubleshooting
 
@@ -421,63 +466,12 @@ All tests should:
 - Check that modules are loaded
 - Verify service health with `status`
 - Check browser console for WASM errors
+- Try mock mode
 
 ### If commands not found:
 - Verify `extended-commands.js` is loaded
 - Check command registration in `setupCommands()`
 - Try `help-extended` to see available commands
-
-## Automated Test Script
-
-You can copy-paste this entire sequence to test all features:
-
-```bash
-help
-help-extended
-status
-lisp
-(+ 1 2 3)
-(def x 10)
-(* x 2)
-(exit)
-eval (+ 10 20)
-pwd
-ls
-cd /programs
-ls
-cd /
-write /test.txt Hello
-cat /test.txt
-rm /test.txt
-mkdir /testdir
-ls
-rm /testdir
-write /programs/test.lisp (def add (lambda (a b) (+ a b)))
-run /programs/test.lisp
-eval (add 5 10)
-set myvar 42
-get myvar
-eval (+ myvar 10)
-functions
-env
-find lisp
-clear
-```
-
-## Success Criteria
-
-The extended features are working correctly if:
-
-1. ✅ All REPL modes function (lisp, algol, multiline)
-2. ✅ Filesystem operations work (read, write, navigate, search)
-3. ✅ Programs can be written, stored, and executed
-4. ✅ Environment management works (variables, functions)
-5. ✅ WASM integration functions (or gracefully degrades)
-6. ✅ Error handling is appropriate
-7. ✅ State persists correctly
-8. ✅ No crashes or hangs
-9. ✅ Help system is comprehensive
-10. ✅ All commands in documentation work as described
 
 ## Reporting Issues
 
@@ -487,5 +481,33 @@ If you find issues:
 3. Verify prerequisites (WASM modules loaded, etc.)
 4. Try simpler version of command
 5. Check documentation for correct syntax
+6. Try mock mode to isolate service issues
 
-Happy testing! 🧪
+## Continuous Integration
+
+### GitHub Actions
+
+The project includes CI configuration for:
+- Running unit tests
+- Building WASM modules
+- Compiling smart contracts
+- Building production bundle
+- Running integration tests
+
+### Pre-commit Checks
+
+Before committing:
+```bash
+# Run tests
+npm test
+
+# Check diagnostics
+npm run check
+
+# Build to verify
+npm run build
+```
+
+---
+
+**Happy testing!** 🧪
