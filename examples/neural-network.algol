@@ -1,0 +1,28 @@
+BEGIN
+  COMMENT Simple neural network simulation in ALGOL;
+  
+  REAL input_layer[3];
+  REAL hidden_layer[2];
+  REAL output;
+  REAL weight1, weight2, weight3;
+  
+  COMMENT Initialize weights;
+  weight1 := 0.5;
+  weight2 := 0.3;
+  weight3 := 0.7;
+  
+  COMMENT Set input values;
+  input_layer[0] := 1.0;
+  input_layer[1] := 0.5;
+  input_layer[2] := 0.8;
+  
+  COMMENT Calculate hidden layer;
+  hidden_layer[0] := input_layer[0] * weight1 + input_layer[1] * weight2;
+  hidden_layer[1] := input_layer[1] * weight2 + input_layer[2] * weight3;
+  
+  COMMENT Calculate output;
+  output := hidden_layer[0] * weight1 + hidden_layer[1] * weight3;
+  
+  COMMENT Return result;
+  output
+END

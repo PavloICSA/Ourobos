@@ -2,9 +2,10 @@
 // Requirements: 3.3
 
 export class CommandRegistry {
-  constructor(terminal, orchestrator = null) {
+  constructor(terminal, orchestrator = null, repl = null) {
     this.terminal = terminal;
     this.orchestrator = orchestrator;
+    this.repl = repl;
     this.setupCommands();
   }
 
@@ -26,6 +27,10 @@ export class CommandRegistry {
     // Utility commands
     this.terminal.registerCommand('reset', () => this.handleReset());
     this.terminal.registerCommand('clear', () => this.handleClear());
+  }
+  
+  setREPL(repl) {
+    this.repl = repl;
   }
 
   handleHelp() {

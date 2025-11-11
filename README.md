@@ -16,6 +16,13 @@ A fully local, static web application that simulates a self-modifying "living or
 - **Rust Orchestrator** ✅ - Performance-critical coordination with state management
 - **JavaScript Orchestrator** ✅ - Message bus with circuit breaker pattern
 
+### Programming Environment ✨ NEW
+- **Interactive REPL** ✅ - Lisp and ALGOL REPL modes for live coding
+- **Virtual Filesystem** ✅ - In-memory file storage with directories and search
+- **Program Execution** ✅ - Run .lisp and .algol files directly
+- **Extended Commands** ✅ - 50+ commands for programming and system control
+- **Environment Management** ✅ - Define variables and functions globally
+
 ### Chimera Extensions
 - **Blockchain Governance** ✅ - Solidity smart contracts for decentralized mutation proposals and voting
 - **Quantum Entropy** ✅ - Qiskit-based quantum random number generation
@@ -33,12 +40,21 @@ A fully local, static web application that simulates a self-modifying "living or
 - ✅ JavaScript orchestrator with message bus and circuit breaker
 - ✅ Retro terminal UI with command handling
 - ✅ WASM bridge utilities for memory management
+- ✅ **Interactive REPL system** (Lisp, ALGOL, multiline modes)
+- ✅ **Virtual filesystem** (files, directories, search)
+- ✅ **Extended command set** (50+ programming commands)
+- ✅ **Program execution** (run .lisp and .algol files)
+- ✅ **Environment management** (variables, functions)
+- ✅ **Blockchain governance** (smart contracts, proposals, voting)
+- ✅ **Quantum entropy** (Qiskit integration with mock mode)
+- ✅ **Bio sensor network** (Raspberry Pi integration with mock mode)
+- ✅ **Chimera orchestrator** (service coordination and health monitoring)
 
 **In Progress:**
-- 🚧 Entropy source system (WebCrypto, WebGPU, device sensors)
 - 🚧 Visualization engine (graph and fractal views)
 - 🚧 Persistence layer (save/load snapshots)
-- 🚧 Main application wiring
+- 🚧 Go neural clusters (WASM modules)
+- 🚧 Pascal terminal bridge (WASM integration)
 
 ## Prerequisites
 
@@ -81,6 +97,23 @@ npm run dev
 
 Visit `http://localhost:3000` in your browser. The system will run with mock services for blockchain, quantum, and biosensor features.
 
+**Try the programming environment:**
+```bash
+> lisp                          # Enter Lisp REPL
+lisp> (+ 1 2 3)                # Evaluate expressions
+6
+lisp> (def square (lambda (x) (* x x)))
+<function>
+lisp> (square 5)
+25
+lisp> (exit)                   # Return to command mode
+
+> ls /programs                 # List example programs
+> cat /programs/hello.lisp     # View program
+> run /programs/hello.lisp     # Execute program
+> help-extended                # See all programming commands
+```
+
 ### Option 2: Full System with All Services
 
 ```bash
@@ -113,6 +146,11 @@ Visit `http://localhost:3000` in your browser.
 │   ├── algol/               # ALGOL DSL compiler
 │   ├── orchestrator/        # Message bus and coordination
 │   ├── terminal/            # Retro terminal UI
+│   │   ├── terminal.js      # Terminal UI component
+│   │   ├── commands.js      # Basic command handlers
+│   │   ├── filesystem.js    # Virtual filesystem ✨ NEW
+│   │   ├── repl.js          # REPL system ✨ NEW
+│   │   └── extended-commands.js  # Extended commands ✨ NEW
 │   ├── blockchain/          # Blockchain bridge
 │   ├── quantum/             # Quantum client
 │   ├── biosensor/           # Bio sensor client
@@ -130,6 +168,16 @@ Visit `http://localhost:3000` in your browser.
 ├── services/                # External services
 │   ├── quantum/             # Quantum entropy service
 │   └── biosensor/           # Bio sensor node
+├── examples/                # Example programs ✨ NEW
+│   ├── fibonacci.lisp       # Recursive Fibonacci
+│   ├── organism-control.lisp # Organism manipulation
+│   └── neural-network.algol # Neural network simulation
+├── docs/                    # Documentation
+│   ├── PROGRAMMING-GUIDE.md # Complete programming tutorial ✨ NEW
+│   ├── QUICK-REFERENCE.md   # Command reference card ✨ NEW
+│   ├── EXTENDED-FEATURES.md # Architecture overview ✨ NEW
+│   ├── TESTING-GUIDE.md     # Testing procedures ✨ NEW
+│   └── ARCHITECTURE-DIAGRAM.md # Visual diagrams ✨ NEW
 ├── public/
 │   └── wasm/                # Compiled WASM outputs
 └── .kiro/
@@ -182,39 +230,58 @@ Each component has detailed documentation:
 
 The terminal UI supports 50+ commands across multiple categories:
 
+### Programming Environment ✨ NEW
+- `lisp` - Enter interactive Lisp REPL mode
+- `algol` - Enter interactive ALGOL REPL mode
+- `eval <expr>` - Evaluate Lisp expression
+- `script <lang>` - Enter multiline script mode
+- `run <file>` - Execute a program file (.lisp or .algol)
+- `compile <file>` - Compile ALGOL to Lisp
+
+### Filesystem ✨ NEW
+- `ls [path]` - List directory contents
+- `cd <path>` - Change directory
+- `pwd` - Print working directory
+- `cat <file>` - Display file contents
+- `write <file> ...` - Write to file
+- `edit <file>` - Edit file (multiline mode)
+- `rm <file>` - Remove file
+- `mkdir <dir>` - Create directory
+- `find <pattern>` - Find files by pattern
+- `grep <pattern>` - Search in files
+
+### WASM Integration ✨ NEW
+- `rust <func> ...` - Call Rust function
+- `fortran <func> ...` - Call Fortran function
+- `go <cmd> ...` - Interact with Go neural clusters
+- `pascal` - Pascal terminal info
+
+### Environment Management ✨ NEW
+- `env` - Show Lisp environment info
+- `set <name> <val>` - Define variable
+- `get <name>` - Get variable value
+- `functions` - List user-defined functions
+
 ### Basic Commands
-- `help` - Show all available commands
+- `help` - Show basic commands
+- `help-extended` - Show programming commands ✨ NEW
 - `status` - Display organism and system health
 - `clear` - Clear terminal screen
 
-### Blockchain Commands
-- `propose-mutation` - Propose a new mutation
-- `vote <id> <yes|no>` - Vote on a proposal
-- `execute-proposal <id>` - Execute approved proposal
-- `query-chain [gen]` - Query blockchain history
-- `list-proposals` - List all proposals
+### Evolution Commands
+- `evolve [steps]` - Run evolution for N steps
+- `mutate <rule>` - Apply ALGOL mutation rule
 
-### Service Commands
-- `quantum-seed [bits]` - Request quantum entropy
-- `sensor-read` - Read bio sensor values
-- `cluster-status` - Display neural cluster status
-- `service-health` - Check all service health
-
-### Performance Commands
-- `perf-show` - Display performance dashboard
-- `perf-summary` - Show performance summary
-- `perf-reset` - Reset metrics
-- `perf-export` - Export metrics to JSON
-- `perf-health` - Check performance health
-
-### System Commands
-- `save [name]` - Save organism snapshot
+### Persistence Commands
+- `save <name>` - Save organism snapshot
 - `load <name>` - Load snapshot
-- `verify` - Verify blockchain proof
-- `export <format>` - Export data (json/csv/ourocode)
-- `config [key] [value]` - View/update configuration
+- `export` - Download .obg file
+- `import` - Upload .obg file
+- `reset` - Revert to last save
 
-**See [docs/TERMINAL-COMMANDS.md](./docs/TERMINAL-COMMANDS.md) for complete command reference with examples.**
+**See [README-PROGRAMMING.md](./README-PROGRAMMING.md) for complete programming guide.**
+**See [docs/PROGRAMMING-GUIDE.md](./docs/PROGRAMMING-GUIDE.md) for detailed tutorial.**
+**See [docs/QUICK-REFERENCE.md](./docs/QUICK-REFERENCE.md) for quick reference card.**
 
 ## Extended Features
 
@@ -306,6 +373,16 @@ See [docs/DEPLOYMENT-GUIDE.md](./docs/DEPLOYMENT-GUIDE.md) for complete deployme
 See `.kiro/specs/ouroboros-chimera/design.md` for detailed architecture documentation.
 
 ## Documentation
+
+### Programming Documentation ✨ NEW
+- **[README-PROGRAMMING.md](./README-PROGRAMMING.md)** - Quick start guide for programming features
+- **[docs/PROGRAMMING-GUIDE.md](./docs/PROGRAMMING-GUIDE.md)** - Complete programming tutorial with examples
+- **[docs/QUICK-REFERENCE.md](./docs/QUICK-REFERENCE.md)** - One-page command reference card
+- **[docs/EXTENDED-FEATURES.md](./docs/EXTENDED-FEATURES.md)** - Architecture and feature overview
+- **[docs/TESTING-GUIDE.md](./docs/TESTING-GUIDE.md)** - Testing procedures and verification
+- **[docs/ARCHITECTURE-DIAGRAM.md](./docs/ARCHITECTURE-DIAGRAM.md)** - Visual system diagrams
+- **[CHANGELOG-EXTENDED.md](./CHANGELOG-EXTENDED.md)** - Detailed changelog for extended features
+- **[IMPLEMENTATION-SUMMARY.md](./IMPLEMENTATION-SUMMARY.md)** - Implementation overview
 
 ### User Documentation
 - **[docs/TERMINAL-COMMANDS.md](./docs/TERMINAL-COMMANDS.md)** - Complete terminal command reference (50+ commands)

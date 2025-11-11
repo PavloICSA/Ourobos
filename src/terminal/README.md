@@ -17,6 +17,15 @@ Retro Pascal/Turbo Pascal-style terminal UI for OuroborOS-Chimera.
 - **Text Styling**: Support for colors (error, warning, success, info, dim) and bold text
 - **Output Methods**: `write()` and `writeLine()` for flexible text output
 
+### Extended Features ✨ NEW
+
+- **Interactive REPL**: Lisp and ALGOL REPL modes for live coding
+- **Virtual Filesystem**: In-memory file storage with directories and search
+- **Extended Commands**: 50+ commands for programming and system control
+- **Program Execution**: Run .lisp and .algol files directly
+- **Environment Management**: Define and manage global variables and functions
+- **Multiline Editor**: Write complex programs with proper formatting
+
 ## Usage
 
 ### Basic Setup
@@ -65,7 +74,7 @@ terminal.unregisterCommand('mycommand');
 
 ### Built-in Commands
 
-The `CommandRegistry` provides these commands:
+The `CommandRegistry` provides these basic commands:
 
 - `help` - Display available commands
 - `evolve [steps]` - Run evolution for N steps
@@ -77,6 +86,47 @@ The `CommandRegistry` provides these commands:
 - `import` - Upload .obg file
 - `reset` - Revert to last save
 - `clear` - Clear terminal output
+
+### Extended Commands ✨ NEW
+
+The `ExtendedCommands` class provides 50+ additional commands:
+
+**Programming Environment:**
+- `lisp` - Enter interactive Lisp REPL mode
+- `algol` - Enter interactive ALGOL REPL mode
+- `eval <expr>` - Evaluate Lisp expression
+- `script <lang>` - Enter multiline script mode
+- `run <file>` - Execute program file
+- `compile <file>` - Compile ALGOL to Lisp
+
+**Filesystem:**
+- `ls [path]` - List directory contents
+- `cd <path>` - Change directory
+- `pwd` - Print working directory
+- `cat <file>` - Display file contents
+- `write <file> ...` - Write to file
+- `edit <file>` - Edit file (multiline)
+- `rm <file>` - Remove file
+- `mkdir <dir>` - Create directory
+- `find <pattern>` - Find files by pattern
+- `grep <pattern>` - Search in files
+
+**WASM Integration:**
+- `rust <func> ...` - Call Rust function
+- `fortran <func> ...` - Call Fortran function
+- `go <cmd> ...` - Interact with Go clusters
+- `pascal` - Pascal terminal info
+
+**Environment:**
+- `env` - Show environment info
+- `set <name> <val>` - Define variable
+- `get <name>` - Get variable value
+- `functions` - List user functions
+
+**Help:**
+- `help-extended` - Show programming commands
+
+See [README-PROGRAMMING.md](../../README-PROGRAMMING.md) for complete guide.
 
 ### Connecting to Orchestrator
 
@@ -159,11 +209,23 @@ new CommandRegistry(terminal: Terminal, orchestrator?: Orchestrator)
 - Remaining tokens are arguments
 - Looks up handler in registry or uses generic callback
 
+## Module Files
+
+- **terminal.js** - Core terminal UI component
+- **commands.js** - Basic command handlers
+- **filesystem.js** - Virtual filesystem implementation ✨ NEW
+- **repl.js** - REPL system for interactive programming ✨ NEW
+- **extended-commands.js** - Extended command set (50+ commands) ✨ NEW
+- **index.js** - Module exports
+
 ## Future Enhancements
 
 - Tab completion for commands
-- Multi-line input support
+- Syntax highlighting in REPL
 - Copy/paste support
 - Configurable color schemes
 - Command aliases
 - Input validation
+- Persistent filesystem (localStorage)
+- Auto-completion for file paths
+- Debugger integration

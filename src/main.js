@@ -4,6 +4,9 @@ import { ALGOLCompiler } from './algol/compiler.js';
 import { ChimeraOrchestrator } from './orchestrator/chimera-orchestrator.js';
 import { ChimeraVisualizer } from './visualization/chimera-visualizer.js';
 import { LispInterpreter } from './lisp/interpreter.js';
+import { VirtualFilesystem } from './terminal/filesystem.js';
+import { REPL } from './terminal/repl.js';
+import { ExtendedCommands } from './terminal/extended-commands.js';
 import config from './config/index.js';
 
 console.log('OuroborOS-Chimera initializing...');
@@ -14,6 +17,9 @@ let compiler = null;
 let orchestrator = null;
 let visualizer = null;
 let lispInterpreter = null;
+let filesystem = null;
+let repl = null;
+let extendedCommands = null;
 
 // WASM module instances
 let rustEngine = null;
@@ -85,7 +91,9 @@ export async function init() {
     
     terminal.writeLine('');
     terminal.writeLine('Type "help" for available commands', 'dim');
+    terminal.writeLine('Type "help-extended" for programming commands', 'dim');
     terminal.writeLine('Type "status" to check service health', 'dim');
+    terminal.writeLine('Type "lisp" to enter Lisp REPL mode', 'dim');
     terminal.writeLine('');
     
     console.log('OuroborOS-Chimera ready!');
@@ -132,7 +140,7 @@ function displayWelcomeMessage() {
 }
 
 /**
- * Initialize core components (compiler, interpreter)
+ * Initialize core components (compiler, interpreter, filesystem, REPL)
  */
 async function initCoreComponents() {
   // Initialize ALGOL compiler
@@ -142,6 +150,15 @@ async function initCoreComponents() {
   // Initialize Lisp interpreter
   lispInterpreter = new LispInterpreter();
   console.log('  ✓ Lisp interpreter initialized');
+  
+  // Initialize virtual filesystem
+  filesystem = new VirtualFilesystem();
+  console.log('  ✓ Virtual filesystem initialized');
+  
+  // Initialize REPL
+  repl = new REPL(terminal, lispInterpreter, compiler);
+  terminal.setREPL(repl);
+  console.log('  ✓ REPL initialized');
 }
 
 /**
@@ -374,8 +391,19 @@ function startServiceHealthMonitoring() {
  * Set up command handlers
  */
 function setupCommandHandlers() {
-  commands = new CommandRegistry(terminal, orchestrator);
+  commands = new CommandRegistry(terminal, orchestrator, repl);
   console.log('  ✓ Command handlers configured');
+  
+  // Set up extended commands
+  extendedCommands = new ExtendedCommands(
+    terminal,
+    orchestrator,
+    filesystem,
+    repl,
+    lispInterpreter,
+    compiler
+  );
+  console.log('  ✓ Extended commands configured');
 }
 
 /**
@@ -420,6 +448,9 @@ export {
   orchestrator, 
   visualizer,
   lispInterpreter,
+  filesystem,
+  repl,
+  extendedCommands,
   rustEngine,
   fortranEngine,
   pascalBridge,

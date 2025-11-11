@@ -13,6 +13,7 @@ export class Terminal {
     this.prompt = '> ';
     this.cursorVisible = true;
     this.commandHandlers = new Map();
+    this.repl = null; // REPL instance for interactive modes
     
     this.init();
   }
@@ -322,6 +323,14 @@ export class Terminal {
   }
 
   executeCommand(command) {
+    // Check if REPL should handle this (if REPL is set and in special mode)
+    if (this.repl && this.repl.getMode() !== 'command') {
+      const handled = this.repl.handleInput(command);
+      if (handled) {
+        return;
+      }
+    }
+    
     // Parse command
     const parts = command.trim().split(/\s+/);
     const cmd = parts[0].toLowerCase();
@@ -342,6 +351,10 @@ export class Terminal {
       this.writeLine(`Unknown command: ${cmd}`, 'error');
       this.writeLine('Type "help" for available commands');
     }
+  }
+  
+  setREPL(repl) {
+    this.repl = repl;
   }
 
   registerCommand(name, handler) {
